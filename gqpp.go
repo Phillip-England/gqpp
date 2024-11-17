@@ -304,3 +304,31 @@ func HasParentWithAttrs(sel *goquery.Selection, stopAt *goquery.Selection, attrs
 
 	return false
 }
+
+func ForceElementAttr(sel *goquery.Selection, attrToCheck string) (string, error) {
+	htmlStr, err := NewHtmlFromSelection(sel)
+	if err != nil {
+		return "", err
+	}
+	attr, exists := sel.Attr(attrToCheck)
+	if !exists {
+		return "", fmt.Errorf("element is required to have the '%s' attribute: %s", attrToCheck, htmlStr)
+	}
+	return attr, nil
+}
+
+func ForceElementAttrParts(sel *goquery.Selection, attrToCheck string, partsExpected int) ([]string, error) {
+	htmlStr, err := NewHtmlFromSelection(sel)
+	if err != nil {
+		return make([]string, 0), err
+	}
+	attr, err := ForceElementAttr(sel, attrToCheck)
+	if err != nil {
+		return make([]string, 0), nil
+	}
+	parts := strings.Split(attr, " ")
+	if len(parts) != partsExpected {
+		return make([]string, 0), fmt.Errorf("attribute '%s' expects %d distinct parts in element: %s", attrToCheck, partsExpected, htmlStr)
+	}
+	return parts, nil
+}
