@@ -304,6 +304,49 @@ func HasParentWithAttrs(sel *goquery.Selection, stopAt *goquery.Selection, attrs
 
 	return false
 }
+func HasParentWithAttrsIncludingStopAt(sel *goquery.Selection, stopAt *goquery.Selection, attrs ...string) bool {
+	// Create a set of the attribute names for quick lookup
+	attrSet := make(map[string]struct{})
+	for _, attr := range attrs {
+		attrSet[attr] = struct{}{}
+	}
+
+	// Traverse up the parent hierarchy
+	current := sel.Parent()
+	for current.Length() > 0 {
+		// Stop if we reach the specified stopAt selection
+		if sameNodes(current, stopAt) {
+			break
+		}
+
+		// Check attributes on the current node
+		for _, node := range current.Nodes {
+			for _, attr := range node.Attr {
+				if _, found := attrSet[attr.Key]; found {
+					return true
+				}
+			}
+		}
+
+		// Move to the parent
+		current = current.Parent()
+	}
+
+	return false
+}
+
+// Helper function to check if two selections have the same underlying nodes
+func sameNodes(a, b *goquery.Selection) bool {
+	if a.Length() != b.Length() {
+		return false
+	}
+	for i := 0; i < a.Length(); i++ {
+		if a.Get(i) != b.Get(i) {
+			return false
+		}
+	}
+	return true
+}
 
 func ForceElementAttr(sel *goquery.Selection, attrToCheck string) (string, error) {
 	htmlStr, err := NewHtmlFromSelection(sel)
