@@ -24,9 +24,18 @@ func NewSelectionFromFilePath(path string) (*goquery.Selection, error) {
 }
 
 func NewSelectionFromStr(htmlStr string) (*goquery.Selection, error) {
+	sq := strings.ReplaceAll(htmlStr, " ", "")
+	isHtmlElm := false
+	if strings.HasPrefix(sq, "<html") {
+		isHtmlElm = true
+	}
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(htmlStr))
 	if err != nil {
 		return nil, err
+	}
+	if isHtmlElm {
+		out := doc.Find("html").Children()
+		return out, nil
 	}
 	out := doc.Find("body").Children()
 	return out, nil
