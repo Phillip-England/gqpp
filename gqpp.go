@@ -34,13 +34,12 @@ func NewSelectionFromStr(htmlStr string) (*goquery.Selection, error) {
 		return nil, err
 	}
 	if isHtmlElm {
-		out := doc.Find("html").Children()
+		out := doc.Find("html")
 		return out, nil
 	}
 	out := doc.Find("body").Children()
 	return out, nil
 }
-
 func ChangeSelectionTagName(s *goquery.Selection, tagName string) (*goquery.Selection, error) {
 	attrStr := GetAttrStr(s)
 	htmlStr, err := s.Html()
